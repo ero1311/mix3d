@@ -1,7 +1,10 @@
 import re
 import os
+import sys
 from pathlib import Path
 from hashlib import md5
+
+sys.path.append(".")
 
 import numpy as np
 import pandas as pd

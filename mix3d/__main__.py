@@ -1,9 +1,10 @@
 import logging
 import os
+import sys
 from datetime import datetime
 from hashlib import md5
 from uuid import uuid4
-
+sys.path.append('.')
 import hydra
 import torch
 from dotenv import load_dotenv
@@ -21,9 +22,9 @@ from pytorch_lightning import Trainer, seed_everything
 
 def get_parameters(cfg: DictConfig):
     # making shure reproducable
-    assert not Repo("./").is_dirty(), "repo is dirty, commit first"
+    #assert not Repo("./").is_dirty(), "repo is dirty, commit first"
     logger = logging.getLogger(__name__)
-    load_dotenv(".env")
+    #load_dotenv(".env")
 
     # parsing input parameters
     seed_everything(cfg.general.seed)
@@ -98,3 +99,5 @@ def test(cfg: DictConfig):
         **cfg.trainer,
     )
     runner.test(model)
+
+train()
