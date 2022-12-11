@@ -114,23 +114,24 @@ class BasePreprocessing:
         labels = points[:, -2:]
         file_instances = []
         for instance_id in np.unique(labels[:, 1]):
-            occupied_indices = np.isin(labels[:, 1], instance_id)
-            instance_points = points[occupied_indices].copy()
-            instance_classes = np.unique(instance_points[:, 9]).astype(int).tolist()
+            if instance_id != -1:
+                occupied_indices = np.isin(labels[:, 1], instance_id)
+                instance_points = points[occupied_indices].copy()
+                instance_classes = np.unique(instance_points[:, 9]).astype(int).tolist()
 
-            hash_string = str(sample_from_database["filepath"]) + str(instance_id)
-            hash_string = md5(hash_string.encode("utf-8")).hexdigest()
-            instance_filepath = self.save_dir / "instances" / f"{hash_string}.npy"
-            instance = {
-                "classes": instance_classes,
-                "instance_filepath": str(instance_filepath),
-                "instance_size": len(instance_points),
-                "original_file": str(sample_from_database["filepath"]),
-            }
-            if not instance_filepath.parent.exists():
-                instance_filepath.parent.mkdir(parents=True, exist_ok=True)
-            np.save(instance_filepath, instance_points.astype(np.float32))
-            file_instances.append(instance)
+                hash_string = str(sample_from_database["filepath"]) + str(instance_id)
+                hash_string = md5(hash_string.encode("utf-8")).hexdigest()
+                instance_filepath = self.save_dir / "instances" / f"{hash_string}.npy"
+                instance = {
+                    "classes": instance_classes,
+                    "instance_filepath": str(instance_filepath),
+                    "instance_size": len(instance_points),
+                    "original_file": str(sample_from_database["filepath"]),
+                }
+                if not instance_filepath.parent.exists():
+                    instance_filepath.parent.mkdir(parents=True, exist_ok=True)
+                np.save(instance_filepath, instance_points.astype(np.float32))
+                file_instances.append(instance)
         return file_instances
 
     def fix_bugs_in_labels(self):
