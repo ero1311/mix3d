@@ -127,10 +127,11 @@ class BasePreprocessing:
                     "instance_filepath": str(instance_filepath),
                     "instance_size": len(instance_points),
                     "original_file": str(sample_from_database["filepath"]),
+                    "file_len": points.shape[0]
                 }
                 if not instance_filepath.parent.exists():
                     instance_filepath.parent.mkdir(parents=True, exist_ok=True)
-                np.save(instance_filepath, instance_points.astype(np.float32))
+                np.save(instance_filepath, occupied_indices.astype('uint8'))
                 file_instances.append(instance)
         return file_instances
 

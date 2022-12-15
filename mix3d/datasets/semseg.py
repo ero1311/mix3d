@@ -333,9 +333,10 @@ class SemanticSegmentationDataset(Dataset):
                     valid_labels.update({k: v})
             return valid_labels
         else:
-            msg = f"""not available number labels, select from:
+            '''msg = f"""not available number labels, select from:
             {number_of_validation_labels}, {number_of_all_labels}"""
-            raise ValueError(msg)
+            raise ValueError(msg)'''
+            return labels
 
     def _remap_from_zero(self, labels):
         labels[~np.isin(labels, list(self.label_info.keys()))] = self.ignore_label

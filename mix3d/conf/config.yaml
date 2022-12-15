@@ -1,11 +1,11 @@
 general:
   seed: null
-  checkpoint: null # continue with weights
+  checkpoint: saved/baseline/2022-12-04_1825/9015e138/a32538bd_e4f8/last.ckpt # continue with weights
   freeze_backbone: false # train only last layer
 
   project_name: mix3d
   workspace: kumuji
-  experiment_name: baseline
+  experiment_name: interactive
 
   save_dir: saved/${general.experiment_name}/${now:%Y-%m-%d_%H%M}
   # time/commit/md5(config)_uuid
@@ -18,7 +18,7 @@ general:
 defaults:
   - data: indoor
   - data/data_loaders: simple_loader
-  - data/datasets: scannet
+  - data/datasets: scannet_interactive
   - data/collation_functions: voxelize_collate_merge
   - logging: offline
   - model: baseline

@@ -83,10 +83,7 @@ class SemanticSegmentation(pl.LightningModule):
 
         confusion_matrix = self.confusion.value()
         results_iou = self.iou.value(confusion_matrix)
-        for i, k in enumerate(self.labels_info.keys()):
-            metric_name = self.labels_info[k]["name"]
-            results["val_IoU_" + metric_name] = results_iou[i]
-        results["val_IoU"] = results_iou.mean()
+        results["val_IoU"] = results_iou[1]
         self.log_dict(results)
         self.confusion.reset()
 
