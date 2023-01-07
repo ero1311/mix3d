@@ -10,6 +10,7 @@ import torch
 from mix3d.models.metrics import IoU
 from torch import nn
 from torch.utils.data import DataLoader
+from mix3d.utils.point_cloud_utils import write_point_cloud_in_ply, load_ply
 
 
 class SemanticSegmentation(pl.LightningModule):
@@ -91,6 +92,7 @@ class SemanticSegmentation(pl.LightningModule):
         data, target = batch
         inverse_maps = data.inverse_maps
         original_labels = data.original_labels
+        features = data.features
         data = ME.SparseTensor(coords=data.coordinates, feats=data.features)
         data.to(self.device)
         output = self.forward(data)
@@ -104,7 +106,7 @@ class SemanticSegmentation(pl.LightningModule):
             out = output.F[output.C[:, 0] == i]
             out = out.max(1)[1].view(-1).detach().cpu()
             original_predicted.append(out[inverse_maps[i]].numpy())
-
+        save_interactive_res(original_predicted, features[inverse_maps][:, 3:].detach().cpu(), self.test_dataset.data[batch_idx], self.config.general.save_dir)
         return {
             "test_loss": loss,
             "metrics": {
@@ -207,3 +209,18 @@ def scannet_submission(path, outputs, results, test_filebase, remap_function):
             myzip.write(file)
     results["submission_path"] = str(zip_path)
     return results
+
+
+def save_interactive_res(predictions, pos_neg, scene_info, save_path):
+    orig_ply_base = '/home/erik/workspace/scannet_st_format/scans/scene{0}/scene{0}_vh_clean_2.ply'
+    scene_path = Path(scene_info['original_file'])
+    coords, feats, _ = load_ply(orig_ply_base.format(scene_path.stem))
+    pos_neg = pos_neg.numpy().astype(bool)
+    print(np.unique(predictions[0], return_counts=True), feats[predictions[0].astype(bool)].shape)
+    feats[predictions[0].astype(bool)] = np.array([0, 0, 255])
+    feats[pos_neg[:, 0]] = np.array([0, 255, 0])
+    feats[pos_neg[:, 1]] = np.array([255, 0, 0])
+    save_dir = Path(save_path) / 'visualizations'
+    if not save_dir.exists():
+        save_dir.mkdir()
+    write_point_cloud_in_ply(save_dir / 'scene{}_{}.ply'.format(scene_path.stem, Path(scene_info['instance_filepath']).stem), coords, feats)
