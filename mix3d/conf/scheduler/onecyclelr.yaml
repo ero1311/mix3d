@@ -5,7 +5,7 @@ scheduler:
   max_lr: ${optimizer.lr}
   epochs: ${trainer.max_epochs}
   # need to set to number because of tensorboard logger
-  steps_per_epoch: -1
+  steps_per_epoch: 6089
 
 pytorch_lightning_params:
   interval: step

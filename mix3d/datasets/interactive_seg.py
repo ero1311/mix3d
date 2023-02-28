@@ -70,8 +70,13 @@ class InteractiveSegmentationDataset(SemanticSegmentationDataset):
             points[:, 6:9],
             points[:, 9:],
         )
-        simulated_clicks = sample_pos_neg_clicks(coordinates, instance_mask)
-
+        scribble_id = np.random.choice(np.arange(6, 11))
+        inst_mask_path = Path(self.data[idx]["instance_filepath"])
+        simulated_click_ids = np.load(inst_mask_path.parent.parent / 'scribbles' / '{}_{}.npy'.format(inst_mask_path.stem, int(scribble_id))).astype(int)
+        simulated_clicks = np.zeros_like(instance_mask, dtype=bool)
+        only_inst = np.zeros_like(instance_mask[instance_mask], dtype=bool)
+        only_inst[simulated_click_ids] = True
+        simulated_clicks[instance_mask] = only_inst.copy()
         if not self.add_colors:
             color = np.ones((len(color), 3))
 
@@ -144,7 +149,7 @@ class InteractiveSegmentationDataset(SemanticSegmentationDataset):
         if self.add_raw_coordinates:
             features = np.hstack((features, coordinates))
 
-        features = np.hstack((features, simulated_clicks))
+        features = np.hstack((features, simulated_clicks.astype(int).reshape(-1, 1)))
 
         return coordinates, features, labels
 
